@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #cryptoSearch {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #cryptoList {
+            width: 320px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            display: none;
+            position: absolute;
+            background: white;
+        }
+        .crypto-option {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .crypto-option:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Search & Select a Cryptocurrency:</h2>
+    <input type="text" id="cryptoSearch" placeholder="Search crypto..." oninput="filterCryptos()">
+    <div id="cryptoList"></div>
+
+    <h2>Crypto Price Chart:</h2>
+    <iframe id="grafanaFrame" src="http://localhost:3000/d/3890?var-name=Bitcoin" width="100%" height="600px"></iframe>
+
+    <script>
+        let cryptoNames = []; // This will be filled dynamically
+
+        async function fetchCryptoNames() {
+            try {
+                let response = await fetch("http://localhost:9090/api/v1/series?match[]=coin_market_price_usd{}");
+                let data = await response.json();
+                
+                // Extract unique cryptocurrency names
+                cryptoNames = [...new Set(data.data.map(item => item.name))];
+            } catch (error) {
+                console.error("Error fetching crypto names:", error);
+            }
+        }
+
+        async function initialize() {
+            await fetchCryptoNames();
+        }
+
+        function filterCryptos() {
+            let searchInput = document.getElementById("cryptoSearch").value.toLowerCase();
+            let cryptoList = document.getElementById("cryptoList");
+
+            cryptoList.innerHTML = ""; // Clear previous list
+
+            if (searchInput === "") {
+                cryptoList.style.display = "none";
+                return;
+            }
+
+            let filteredCryptos = cryptoNames.filter(crypto => crypto.toLowerCase().includes(searchInput));
+
+            filteredCryptos.forEach(crypto => {
+                let div = document.createElement("div");
+                div.className = "crypto-option";
+                div.innerText = crypto;
+                div.onclick = function() { selectCrypto(crypto); };
+                cryptoList.appendChild(div);
+            });
+
+            cryptoList.style.display = "block";
+        }
+
+        function selectCrypto(selectedCrypto) {
+            document.getElementById("cryptoSearch").value = selectedCrypto;
+            document.getElementById("cryptoList").style.display = "none";
+
+            let grafanaFrame = document.getElementById("grafanaFrame");
+            grafanaFrame.src = `http://localhost:3000/d/3890?var-name=${selectedCrypto}`;
+        }
+
+        document.addEventListener("click", function(event) {
+            if (!event.target.matches("#cryptoSearch")) {
+                document.getElementById("cryptoList").style.display = "none";
+            }
+        });
+
+        initialize();
+    </script>
+
+</body>
+</html>
