@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Market Tracker</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS -->
+</head>
+<body>
+
+    <h2>Live Cryptocurrency Prices</h2>
+    <p class="loading" id="loading">Fetching data...</p>
+    
+    <table id="cryptoTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Price (USD)</th>
+                <th>Market Cap (USD)</th>
+                <th>24h Volume (USD)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted dynamically -->
+        </tbody>
+    </table>
+
+    <div id="search">
+        <h1>Crypto Price Tracker</h1>
+
+        <div class="container">
+            <h3>Search & Select a Cryptocurrency:</h3>
+            <input type="text" id="cryptoSearch" placeholder="Search crypto..." oninput="filterCryptos()">
+            <div id="cryptoList"></div>
+
+            <h3>Price Chart:</h3>
+            <div class="iframe-container">
+                <iframe id="grafanaFrame"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script> <!-- Link to external JavaScript -->
+</body>
+</html>
